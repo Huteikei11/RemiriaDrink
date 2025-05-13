@@ -38,7 +38,7 @@ public class ActionButtonBase : MonoBehaviour
         count++; // Às‰ñ”‚ğ‹L˜^
     }
 
-    private void ShakeButton()
+    public void ShakeButton()
     {
         // ƒ{ƒ^ƒ“‚ğT‚¦‚ß‚ÉU“®‚³‚¹‚é
         transform.DOShakePosition(0.5f, strength: new Vector3(5f, 0f, 0f), vibrato: 10, randomness: 90, snapping: false, fadeOut: true);

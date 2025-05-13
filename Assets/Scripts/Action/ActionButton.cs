@@ -2,45 +2,68 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-public class ActionButton : ActionButtonBase
+public class ActionButton : MonoBehaviour
 {
-    [SerializeField] private Image actionImage; // 共有の画像
-    [SerializeField] private Sprite actionSprite; // Inspectorから設定する適用する画像
-    [SerializeField] private float displayDuration = 2f; // 画像を表示する時間
-    [SerializeField] private float fadeDelay = 2f; // フェードアウト前の待機時間
+    /*
+    * パラメータの変更、カットインの表示機能がついています。
+    * 実行条件、服を脱がすなどの個別の処理は継承して実装してください。
+    * 
+    * ActionButtonクラスは、ActionButtonBaseクラスを継承し、ボタンが押されたときの処理を実装します。
+    * 具体的には、ParameterManagerを使用してパラメータを加算し、DOTweenを使用して画像のフェードイン・フェードアウトを行います。
+    *
+    * public int count; // 実行回数
+    * public bool isenabled = true; // 実行可能か
+    * public ParameterManager parameterManager;
+    */
+    public Image actionImage; // カットインを表示するのにつかう共有の画像。
+    public   Sprite actionSprite; // Inspectorから設定する適用する画像
+    public float displayDuration = 2f; // 画像を表示する時間
+    public float fadeDelay = 2f; // フェードアウト前の待機時間
 
     // Inspectorから設定可能なパラメータ
-    [SerializeField] private float addDrunk = 10f; // 酔いの値
-    [SerializeField] private float addSexual = 5f; // 性的な値
-    [SerializeField] private float addLikeability = 3f; // 好感度の値
+    public float addDrunk = 10f; // 酔いの値
+    public float addSexual = 5f; // 性的な値
+    public float addLikeability = 3f; // 好感度の値
 
-    private static Tween currentTween; // 共有のDOTweenアニメーションを管理
+    protected static Tween currentTween; // 共有のDOTweenアニメーションを管理
 
-    public override void PushButton() // 引数なしのPushButton
+    public virtual void PushButton() // ボタンが押されたときの処理
     {
-        if (CheckEnable())
+        if (CheckExecutionCondition())
         {
-            BaseAction();
-            Debug.Log($"PushButtonが実行されました。現在の実行回数: {count}");
-
-            if (actionImage != null)
-            {
-                ApplySpriteToImage();
-                ShowActionImage();
-            }
-
-            if (parameterManager != null)
-            {
-                parameterManager.AddParameter(addDrunk, addSexual, addLikeability); // Inspectorで設定した値を使用
-            }
+            ExecuteAction(); // 実行内容をオーバーライド可能
+            Debug.Log("PushButtonが実行されました。");
         }
         else
         {
-            Debug.Log("PushButtonは現在無効化されています。");
+            Debug.Log("実行条件が満たされていません。");
         }
     }
 
-    private void ApplySpriteToImage()
+    /// <summary>
+    /// 実行条件を検証するメソッド。継承先でオーバーライド可能。
+    /// </summary>
+    /// <returns>実行可能かどうかを返す</returns>
+    protected virtual bool CheckExecutionCondition()
+    {
+        // デフォルトでは常に実行可能
+        return true;
+    }
+
+    /// <summary>
+    /// ボタンが押されたときの演出を記述するメソッド。継承先でオーバーライド可能。
+    /// </summary>
+    protected virtual void ExecuteAction()
+    {
+        // デフォルトの演出
+        if (actionImage != null)
+        {
+            ApplySpriteToImage();
+            ShowActionImage();
+        }
+    }
+
+    public void ApplySpriteToImage()
     {
         if (actionImage == null)
         {
@@ -54,20 +77,10 @@ public class ActionButton : ActionButtonBase
             return;
         }
 
-        Debug.Log($"actionImageに適用するSprite: {actionSprite.name}");
         actionImage.sprite = actionSprite;
-
-        if (actionImage.sprite == actionSprite)
-        {
-            Debug.Log("Spriteが正常に適用されました。");
-        }
-        else
-        {
-            Debug.LogError("Spriteの適用に失敗しました。");
-        }
     }
 
-    private void ShowActionImage()
+    public void ShowActionImage()
     {
         // 前回のアニメーションを停止
         if (currentTween != null && currentTween.IsActive())
@@ -90,4 +103,3 @@ public class ActionButton : ActionButtonBase
             });
     }
 }
-
