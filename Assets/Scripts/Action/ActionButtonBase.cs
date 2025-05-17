@@ -7,6 +7,7 @@ public class ActionButtonBase : MonoBehaviour
 {
     public int count; // 実行回数
     public bool isenabled = true; // 実行可能か
+    [HideInInspector]
     public ParameterManager parameterManager;
 
     public void OnEnable() // 起動したときの処理

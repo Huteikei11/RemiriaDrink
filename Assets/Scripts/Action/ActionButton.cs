@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-public class ActionButton : MonoBehaviour
+public class ActionButton : ActionButtonBase
 {
     /*
     * パラメータの変更、カットインの表示機能がついています。
@@ -26,16 +26,55 @@ public class ActionButton : MonoBehaviour
     public float addLikeability = 3f; // 好感度の値
 
     protected static Tween currentTween; // 共有のDOTweenアニメーションを管理
+    [HideInInspector]
+    public Image attachedImage; // スクリプトがアタッチされているImage
 
-    public virtual void PushButton() // ボタンが押されたときの処理
+    private void Awake()
+    {
+        // シーン内の ParameterManager を自動取得
+        parameterManager = FindObjectOfType<ParameterManager>();
+
+        if (parameterManager == null)
+        {
+            Debug.LogError("ParameterManagerがシーン内に見つかりません。");
+        }
+
+        // スクリプトがアタッチされているImageコンポーネントを取得
+        attachedImage = GetComponent<Image>();
+
+        if (attachedImage == null)
+        {
+            Debug.LogError("このオブジェクトにImageコンポーネントがアタッチされていません。");
+        }
+    }
+
+    private void Update()
+    {
+        // CheckExecutionCondition() の結果に応じて色を変更
+        if (attachedImage != null)
+        {
+            if (CheckExecutionCondition())
+            {
+                // 実行可能: 標準の色に戻す
+                attachedImage.color = Color.white;
+            }
+            else
+            {
+                // 実行不可: 少し暗い色にする
+                attachedImage.color = new Color(0.5f, 0.5f, 0.5f, 1f); // グレー
+            }
+        }
+    }
+    public override void PushButton() // ボタンが押されたときの処理  
     {
         if (CheckExecutionCondition())
         {
-            ExecuteAction(); // 実行内容をオーバーライド可能
+            ExecuteAction(); // 実行内容をオーバーライド可能  
             Debug.Log("PushButtonが実行されました。");
         }
         else
         {
+            ShakeButton();
             Debug.Log("実行条件が満たされていません。");
         }
     }
@@ -60,6 +99,7 @@ public class ActionButton : MonoBehaviour
         {
             ApplySpriteToImage();
             ShowActionImage();
+            AddParameter();
         }
     }
 
@@ -102,4 +142,16 @@ public class ActionButton : MonoBehaviour
                 });
             });
     }
-}
+
+    public void AddParameter()
+    {
+        if (parameterManager != null)
+        {
+            parameterManager.AddParameter(addDrunk, addSexual, addLikeability);
+        }
+        else
+        {
+            Debug.LogError("ParameterManagerが設定されていません。");
+        }
+    }
+    }

@@ -11,6 +11,8 @@ public class ParameterManager : MonoBehaviour
     public int turn;
     public int ecstasyNum;
 
+    [SerializeField] private GameOverAction gameOverAction;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -65,23 +67,47 @@ public class ParameterManager : MonoBehaviour
         if(drunk >= 100)//酔い100%
         {
             GameOverAlcoholic();
+            return true;
         }
-        else if(drunk <= 10)//酔いさめた
+        else if(drunk <= 0)//酔いさめた
         {
             GameOverCalm();
+            return true;
         }
-        
+        else if (sexual >= 100)// 性MAX
+        {
+            GameOverSexual();
+            return true;
+        }
+
         return false;
     }
 
     private void GameOverAlcoholic()//酔い100%
     {
         Debug.Log("酔いがMAX！オエー！！！");
+        if (gameOverAction != null)
+        {
+            gameOverAction.ShowAlcoholicPanel();
+        }
     }
 
     private void GameOverCalm()
     {
         Debug.Log("酔いがさめました。");
+        if (gameOverAction != null)
+        {
+            gameOverAction.ShowCalmPanel();
+        }
+    }
+
+    private void GameOverSexual()
+    {
+        Debug.Log("性的な興奮がMAXです。");
+        if (gameOverAction != null)
+        {
+            gameOverAction.ShowSexualPanel();
+        }
     }
 
 
